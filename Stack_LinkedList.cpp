@@ -1,7 +1,7 @@
 #include "Stack.h"
 #include <iostream>
 using namespace std;
-// Constructor: start with an empty stack 
+// Constructor: start with an empty stack (top = nullptr)
 StackLL :: StackLL(){
     top = nullptr;
 }
@@ -11,14 +11,14 @@ StackLL :: ~StackLL(){
         pop();
     }
 }
-// push: create a new node and place it at the top
+// push: create a new node and place it at the top  
 void StackLL :: push(int value){
     Node* newNode = new Node();
     newNode -> data = value;
     newNode -> next = top;
     top = newNode;
 }
-// pop: remove the top node and return its value
+// pop: remove the top node and return its value 
 // Edge case: print an error if the stack is empty
 int StackLL :: pop(){
     if(isEmpty()){
@@ -31,7 +31,7 @@ int StackLL :: pop(){
     delete temp;
     return value;
 }
-// peek: return the top value WITHOUT removing it
+// peek: return the top value WITHOUT removing it  
 int StackLL :: peek(){
     if(isEmpty()){
         cout << "Error: Can't peek an empty stack" << endl;
@@ -41,7 +41,7 @@ int StackLL :: peek(){
         return top -> data;
     }
 }
-// isEmpty: returns true if there are no nodes
+// isEmpty: returns true if there are no nodes  
 bool StackLL :: isEmpty(){
     return top == nullptr;
 }
