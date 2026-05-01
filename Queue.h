@@ -11,8 +11,8 @@ private:
     int capacity;
 
 public:
-    CircularQueue();
-    ~CircularQueue(int size);
+    CircularQueue(int size);
+    ~CircularQueue();
 
     bool isFull();
     bool isEmpty();
