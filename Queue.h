@@ -1,16 +1,18 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#define SIZE 5
+ 
 
 class CircularQueue {
 private:
-    int items[SIZE];
+    int *items;
     int front;
     int rear;
+    int capacity;
 
 public:
     CircularQueue();
+    `CircularQueue();
 
     bool isFull();
     bool isEmpty();
@@ -19,4 +21,4 @@ public:
     int dequeue();
 };
 
-#endif
+ 
