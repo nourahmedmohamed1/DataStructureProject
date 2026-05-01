@@ -1,41 +1,33 @@
-#include "StackArr.h"
-#include <iostream>
+#ifndef STACK_H
+#define STACK_H
 
-// Constructor
-StackArray::StackArray(int cap) {
-    capacity = cap;
-    arr = new int[capacity];
-    top = -1;
-}
+#include "Node.h"
 
-bool StackArray::isEmpty() {
-    return top == -1;
-}
+class StackArray {
+private:
+    int* arr;
+    int top;
+    int capacity;
 
-bool StackArray::isFull() {
-    return top == capacity - 1;
-}
+public:
+    StackArray(int cap);
+    ~StackArray();
+    void push(int value);
+    int  pop();
+    int  peek();
+    bool isFull();
+    bool isEmpty();
+};
 
-void StackArray::push(int value) {
-    if (isFull()) {
-        std::cout << "Stack Overflow! Cannot push " << value << ", stack is full." << std::endl;
-        return;
-    }
-    arr[++top] = value;
-}
-
-int StackArray::pop() {
-    if (isEmpty()) {
-        std::cout << "Stack Underflow! Cannot pop, stack is empty." << std::endl;
-        return -1;
-    }
-    return arr[top--];
-}
-
-int StackArray::peek() {
-    if (isEmpty()) {
-        std::cout << "Stack is empty! Nothing to peek." << std::endl;
-        return -1;
-    }
-    return arr[top];
-}
+class StackLL {
+private:
+    Node* top;
+public:
+    StackLL();
+    ~StackLL();
+    void push(int value);
+    int pop();
+    int peek();
+    bool isEmpty();
+};
+#endif
