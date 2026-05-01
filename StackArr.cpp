@@ -1,4 +1,4 @@
-#include "Stack.h"
+#include "StackArr.h"
 #include <iostream>
 
 // Constructor
