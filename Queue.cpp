@@ -2,13 +2,18 @@
 #include <iostream>
 using namespace std;
 
-CircularQueue::CircularQueue() {
+CircularQueue::CircularQueue(int size) {
+    capacity=size;
+    items=new int[capacity];
     front = -1;
     rear = -1;
 }
+CircularQueue::~CircularQueue(){
+    delete[] items;
+}
 
 bool CircularQueue::isFull() {
-    if (front == 0 && rear == SIZE - 1)
+    if (front == 0 && rear == capacity - 1)
         return true;
 
     if (front == rear + 1)
@@ -30,7 +35,7 @@ void CircularQueue::enqueue(int element) {
     if (front == -1)
         front = 0;
 
-    rear = (rear + 1) % SIZE; // circular step
+    rear = (rear + 1) % capacity; // circular step
     items[rear] = element;
 
     cout << "Added " << element << endl;
@@ -48,8 +53,15 @@ int CircularQueue::dequeue() {
         front = -1;
         rear = -1;
     } else {
-        front = (front + 1) % SIZE; // circular step
+        front = (front + 1) % capacity; // circular step
     }
 
     return element;
 }
+
+
+
+
+
+
+
