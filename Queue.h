@@ -12,7 +12,7 @@ private:
 
 public:
     CircularQueue();
-    `CircularQueue();
+    ~CircularQueue(int size);
 
     bool isFull();
     bool isEmpty();
