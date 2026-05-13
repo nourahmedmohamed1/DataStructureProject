@@ -1,11 +1,14 @@
-#include "Stack.h"
+#include "StackArr.h"
 #include <iostream>
 
-// Constructor
 StackArray::StackArray(int cap) {
     capacity = cap;
     arr = new int[capacity];
     top = -1;
+}
+
+StackArray::~StackArray() {
+    delete[] arr;
 }
 
 bool StackArray::isEmpty() {
@@ -18,7 +21,7 @@ bool StackArray::isFull() {
 
 void StackArray::push(int value) {
     if (isFull()) {
-        std::cout << "Stack Overflow! Cannot push " << value << ", stack is full." << std::endl;
+        std::cout << "Stack Overflow! Cannot push " << value << ", stack is full.\n";
         return;
     }
     arr[++top] = value;
@@ -26,7 +29,7 @@ void StackArray::push(int value) {
 
 int StackArray::pop() {
     if (isEmpty()) {
-        std::cout << "Stack Underflow! Cannot pop, stack is empty." << std::endl;
+        std::cout << "Stack Underflow! Cannot pop, stack is empty.\n";
         return -1;
     }
     return arr[top--];
@@ -34,7 +37,7 @@ int StackArray::pop() {
 
 int StackArray::peek() {
     if (isEmpty()) {
-        std::cout << "Stack is empty! Nothing to peek." << std::endl;
+        std::cout << "Stack is empty! Nothing to peek.\n";
         return -1;
     }
     return arr[top];
