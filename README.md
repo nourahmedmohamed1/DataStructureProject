@@ -11,7 +11,8 @@
 ## 📸 Screenshots
 
 ### Main Menu
-![Main Menu](docs/main_menu.png)
+<img width="742" height="380" alt="Screenshot 2026-05-13 054316" src="https://github.com/user-attachments/assets/40332e4d-e53f-4dda-b0e9-772cb807c6a6" />
+
 
 ### Submenu — Linked List & Stack
 ![Submenus](docs/submenu.png)
@@ -164,7 +165,3 @@ Each sub-menu then lets you interact with the chosen structure:
 
 
 ---
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
