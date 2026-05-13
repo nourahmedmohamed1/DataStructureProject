@@ -15,7 +15,8 @@
 
 
 ### Submenu — Linked List & Stack
-![Submenus](docs/submenu.png)
+<img width="773" height="381" alt="Screenshot 2026-05-13 061705" src="https://github.com/user-attachments/assets/008b69ed-3e2f-4b04-bb99-d39f0598b818" /><img width="837" height="526" alt="Screenshot 2026-05-13 061742" src="https://github.com/user-attachments/assets/4498dbec-9330-488a-9aa2-c7a097f2c7bc" />
+
 
 ---
 
