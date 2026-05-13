@@ -79,18 +79,18 @@ int readChoice(int lo, int hi) {
 void printBanner() {
     clearScreen();
     cout << CYN << BOLD
-         << "  ╔══════════════════════════════════════════════════════╗\n"
-         << "  ║        DATA STRUCTURES INTERACTIVE EXPLORER         ║\n"
-         << "  ║   LinkedList · StackArr · StackLL · QCirc · QLL    ║\n"
-         << "  ╚══════════════════════════════════════════════════════╝\n"
+         << "  +======================================================+\n"
+         << "  |       DATA STRUCTURES INTERACTIVE EXPLORER          |\n"
+         << "  |  LinkedList * StackArr * StackLL * QCirc * QLL      |\n"
+         << "  +======================================================+\n"
          << RST << "\n";
 }
 
 void printDivider(const string& title = "") {
     if (title.empty()) {
-        cout << DIM << "  ────────────────────────────────────────────────────\n" RST;
+        cout << DIM << "  ----------------------------------------------------\n" RST;
     } else {
-        cout << MAG << BOLD << "\n  ┌─ " << title << " ─\n" RST;
+        cout << MAG << BOLD << "\n  [ " << title << " ]\n" RST;
     }
 }
 
@@ -100,9 +100,9 @@ void printMainMenu() {
     cout << BOLD << "  Choose a Data Structure:\n\n" RST
          << GRN  << "  [1]" RST << "  Linked List        (Singly-linked)\n"
          << BLU  << "  [2]" RST << "  Stack  (Array)     (Fixed capacity)\n"
-         << CYN  << "  [3]" RST << "  Stack  (Linked List)(Dynamic, O(1))\n"
+         << CYN  << "  [3]" RST << "  Stack  (Linked List)\n"
          << YLW  << "  [4]" RST << "  Queue  (Circular)  (Array-based)\n"
-         << MAG  << "  [5]" RST << "  Queue  (Linked List)(Dynamic, O(1))\n"
+         << MAG  << "  [5]" RST << "  Queue  (Linked List)\n"
          << RED  << "  [0]" RST << "  Exit\n\n";
 }
 
@@ -245,7 +245,7 @@ int main() {
             case 0:
                 clearScreen();
                 cout << CYN << BOLD
-                     << "\n  Goodbye! Happy coding!\n\n" RST;
+                     << "\n  Goodbye! Happy coding!\n\n" << RST;
                 break;
         }
     } while (choice != 0);
