@@ -14,6 +14,7 @@ public:
     void insertAtEnd(int value);
     void deleteValue(int value);
     void display();
+    bool isEmpty();
 };
 
 #endif

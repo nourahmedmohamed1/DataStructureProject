@@ -25,26 +25,44 @@ bool CircularQueue::isEmpty() {
 
 void CircularQueue::enqueue(int element) {
     if (isFull()) {
-        cout << "Queue is full\n";
+        cout << "Queue is full! Cannot enqueue " << element
+             << ". Maximum capacity (" << capacity << ") reached.\n";
         return;
     }
     if (front == -1) front = 0;
-    rear       = (rear + 1) % capacity;
+    rear        = (rear + 1) % capacity;
     items[rear] = element;
-    cout << "Enqueued " << element << "\n";
+    cout << "Enqueued " << element << " into the circular queue.\n";
 }
 
 int CircularQueue::dequeue() {
     if (isEmpty()) {
-        cout << "Queue is empty\n";
+        cout << "Queue is empty! Cannot dequeue. No elements present.\n";
         return -1;
     }
     int element = items[front];
     if (front == rear) {
         front = -1;
         rear  = -1;
+        cout << "Dequeued " << element << ". Queue is now empty.\n";
     } else {
         front = (front + 1) % capacity;
+        cout << "Dequeued " << element << " from the circular queue.\n";
     }
     return element;
+}
+
+void CircularQueue::display() {
+    if (isEmpty()) {
+        cout << "  Queue is empty.\n";
+        return;
+    }
+    cout << "  FRONT";
+    int i = front;
+    while (true) {
+        cout << " -> [" << items[i] << "]";
+        if (i == rear) break;
+        i = (i + 1) % capacity;
+    }
+    cout << " <- REAR\n";
 }

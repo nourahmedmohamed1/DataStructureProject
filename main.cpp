@@ -5,10 +5,9 @@
 // =============================================================================
 
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <limits>
-#include <vector>
+#include <sstream>
 
 #include "LinkedList.h"
 #include "StackArr.h"
@@ -33,11 +32,27 @@ using namespace std;
 #define BLU  "\033[94m"
 #define DIM  "\033[2m"
 
+// ── Global status message (shown at bottom of every screen) ──────────────────
+string gStatus    = "";
+bool   gIsError   = false;
+
+void setStatus(const string& msg, bool isError = false) {
+    gStatus  = msg;
+    gIsError = isError;
+}
+
+void printStatus() {
+    if (gStatus.empty()) return;
+    cout << "\n";
+    cout << (gIsError ? RED : GRN)
+         << "  >> " << gStatus << "\n" RST;
+}
+
 // ── Utilities ────────────────────────────────────────────────────────────────
 void enableVT() {
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD mode  = 0;
+    DWORD  mode = 0;
     GetConsoleMode(hOut, &mode);
     SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 #endif
@@ -72,7 +87,12 @@ int readInt(const string& prompt) {
 }
 
 int readChoice(int lo, int hi) {
-    return readInt("Choice [" + to_string(lo) + "-" + to_string(hi) + "]: ");
+    while (true) {
+        int v = readInt("Choice [" + to_string(lo) + "-" + to_string(hi) + "]: ");
+        if (v >= lo && v <= hi) return v;
+        cout << RED << "  Invalid choice! Enter a number between "
+             << lo << " and " << hi << " only.\n" RST;
+    }
 }
 
 // ── Banner ───────────────────────────────────────────────────────────────────
@@ -86,145 +106,295 @@ void printBanner() {
          << RST << "\n";
 }
 
-void printDivider(const string& title = "") {
-    if (title.empty()) {
-        cout << DIM << "  ----------------------------------------------------\n" RST;
-    } else {
-        cout << MAG << BOLD << "\n  [ " << title << " ]\n" RST;
-    }
+void printDivider(const string& title) {
+    cout << MAG << BOLD << "\n  [ " << title << " ]\n" RST;
 }
 
 // ── Main Menu ────────────────────────────────────────────────────────────────
 void printMainMenu() {
     printBanner();
     cout << BOLD << "  Choose a Data Structure:\n\n" RST
-         << GRN  << "  [1]" RST << "  Linked List        (Singly-linked)\n"
-         << BLU  << "  [2]" RST << "  Stack  (Array)     (Fixed capacity)\n"
+         << GRN  << "  [1]" RST << "  Linked List\n"
+         << BLU  << "  [2]" RST << "  Stack  (Array)\n"
          << CYN  << "  [3]" RST << "  Stack  (Linked List)\n"
-         << YLW  << "  [4]" RST << "  Queue  (Circular)  (Array-based)\n"
+         << YLW  << "  [4]" RST << "  Queue  (Circular Array)\n"
          << MAG  << "  [5]" RST << "  Queue  (Linked List)\n"
-         << RED  << "  [0]" RST << "  Exit\n\n";
+         << RED  << "  [0]" RST << "  Exit\n";
+    printStatus();
+    cout << "\n";
 }
 
-// ── Sub-menu helpers ─────────────────────────────────────────────────────────
+// ── Capture output from data-structure calls into gStatus ────────────────────
+// We redirect cout into a stringstream temporarily
+struct CaptureGuard {
+    streambuf* old;
+    ostringstream oss;
+    CaptureGuard()  { old = cout.rdbuf(oss.rdbuf()); }
+    string stop()   { cout.rdbuf(old); string s = oss.str();
+                      // trim trailing newline
+                      while (!s.empty() && (s.back()=='\n'||s.back()=='\r')) s.pop_back();
+                      return s; }
+};
+
+// helper: run fn, capture its output, set as status
+template<typename Fn>
+void capture(Fn fn, bool errorOnEmpty = false) {
+    CaptureGuard g;
+    fn();
+    string msg = g.stop();
+    // detect error keywords
+    bool isErr = (msg.find("empty") != string::npos  ||
+                  msg.find("full")  != string::npos  ||
+                  msg.find("not found") != string::npos ||
+                  msg.find("Overflow") != string::npos  ||
+                  msg.find("Underflow") != string::npos ||
+                  msg.find("Cannot") != string::npos    ||
+                  msg.find("Error") != string::npos);
+    setStatus(msg, isErr);
+}
+
+// ── 1. Linked List ───────────────────────────────────────────────────────────
 void llMenu() {
     LinkedList ll;
     int choice;
+    setStatus("");
     do {
         printBanner();
         printDivider("LINKED LIST");
-        cout << "  Current list: "; ll.display();
+        cout << "  List: "; ll.display();
         cout << "\n"
-             << GRN  << "  [1]" RST << "  Insert at Head\n"
-             << GRN  << "  [2]" RST << "  Insert at Tail\n"
-             << RED  << "  [3]" RST << "  Delete Value\n"
-             << CYN  << "  [4]" RST << "  Display\n"
-             << DIM  << "  [0]" RST << "  Back\n\n";
-        choice = readChoice(0, 4);
+             << GRN << "  [1]" RST << "  Insert at Head\n"
+             << GRN << "  [2]" RST << "  Insert at Tail\n"
+             << RED << "  [3]" RST << "  Delete Value\n"
+             << DIM << "  [0]" RST << "  Back\n";
+        printStatus();
+        cout << "\n";
+        choice = readChoice(0, 3);
+
         switch (choice) {
-            case 1: { int v = readInt("Value to insert at head: "); ll.insertAtHead(v); break; }
-            case 2: { int v = readInt("Value to insert at tail: "); ll.insertAtEnd(v);  break; }
-            case 3: { int v = readInt("Value to delete: ");          ll.deleteValue(v); break; }
-            case 4:   ll.display(); pause(); break;
-            case 0:   break;
+            case 1: {
+                int v = readInt("Value to insert at head: ");
+                capture([&]{ ll.insertAtHead(v); });
+                break;
+            }
+            case 2: {
+                int v = readInt("Value to insert at tail: ");
+                capture([&]{ ll.insertAtEnd(v); });
+                break;
+            }
+            case 3: {
+                // Check empty BEFORE asking for value
+                if (ll.isEmpty()) {
+                    setStatus("List is empty. Nothing to delete.", true);
+                    break;
+                }
+                int v = readInt("Value to delete: ");
+                capture([&]{ ll.deleteValue(v); });
+                break;
+            }
+            case 0: setStatus(""); break;
         }
     } while (choice != 0);
 }
 
+// ── 2. Stack (Array) ─────────────────────────────────────────────────────────
 void stackArrMenu() {
-    int cap = readInt("Enter stack capacity: ");
+    int cap;
+    while (true) {
+        cap = readInt("Enter stack capacity (must be > 0): ");
+        if (cap > 0) break;
+        cout << RED << "  Invalid capacity! Please enter a number greater than 0.\n" RST;
+    }
     StackArray sa(cap);
     int choice;
+    setStatus("");
     do {
         printBanner();
         printDivider("STACK (Array-based)");
         cout << "  Capacity: " << cap
-             << "  |  Empty: " << (sa.isEmpty() ? "yes" : "no")
-             << "  |  Full: "  << (sa.isFull()  ? "yes" : "no") << "\n\n"
-             << GRN  << "  [1]" RST << "  Push\n"
-             << RED  << "  [2]" RST << "  Pop\n"
-             << YLW  << "  [3]" RST << "  Peek\n"
-             << DIM  << "  [0]" RST << "  Back\n\n";
+             << "  |  State: "
+             << (sa.isEmpty() ? (string)(RED) + "EMPTY" + RST
+                              : sa.isFull() ? (string)(YLW) + "FULL"  + RST
+                                            : (string)(GRN) + "OK"    + RST)
+             << "\n";
+        sa.display();
+        cout << "\n"
+             << GRN << "  [1]" RST << "  Push\n"
+             << RED << "  [2]" RST << "  Pop\n"
+             << YLW << "  [3]" RST << "  Peek\n"
+             << DIM << "  [0]" RST << "  Back\n";
+        printStatus();
+        cout << "\n";
         choice = readChoice(0, 3);
+
         switch (choice) {
-            case 1: { int v = readInt("Value to push: "); sa.push(v); break; }
-            case 2: { int v = sa.pop();
-                      if (v != -1) cout << GRN << "  Popped: " << v << "\n" RST;
-                      pause(); break; }
-            case 3: { int v = sa.peek();
-                      if (v != -1) cout << YLW << "  Top: " << v << "\n" RST;
-                      pause(); break; }
-            case 0: break;
+            case 1: {
+                if (sa.isFull()) {
+                    setStatus("Stack is full (capacity = " + to_string(cap) + "). Cannot push.", true);
+                    break;
+                }
+                int v = readInt("Value to push: ");
+                capture([&]{ sa.push(v); });
+                break;
+            }
+            case 2: {
+                if (sa.isEmpty()) {
+                    setStatus("Stack is empty. Nothing to pop.", true);
+                    break;
+                }
+                capture([&]{ sa.pop(); });
+                break;
+            }
+            case 3: {
+                if (sa.isEmpty()) {
+                    setStatus("Stack is empty. Nothing to peek.", true);
+                    break;
+                }
+                capture([&]{ sa.peek(); });
+                break;
+            }
+            case 0: setStatus(""); break;
         }
     } while (choice != 0);
 }
 
+// ── 3. Stack (Linked List) ───────────────────────────────────────────────────
 void stackLLMenu() {
     StackLinkedList sll;
     int choice;
+    setStatus("");
     do {
         printBanner();
         printDivider("STACK (Linked List)");
-        cout << "  Empty: " << (sll.isEmpty() ? "yes" : "no") << "\n\n"
-             << GRN  << "  [1]" RST << "  Push\n"
-             << RED  << "  [2]" RST << "  Pop\n"
-             << YLW  << "  [3]" RST << "  Peek\n"
-             << DIM  << "  [0]" RST << "  Back\n\n";
+        cout << "  State: "
+             << (sll.isEmpty() ? (string)(RED) + "EMPTY" + RST
+                               : (string)(GRN) + "HAS ELEMENTS" + RST)
+             << "\n";
+        sll.display();
+        cout << "\n"
+             << GRN << "  [1]" RST << "  Push\n"
+             << RED << "  [2]" RST << "  Pop\n"
+             << YLW << "  [3]" RST << "  Peek\n"
+             << DIM << "  [0]" RST << "  Back\n";
+        printStatus();
+        cout << "\n";
         choice = readChoice(0, 3);
+
         switch (choice) {
-            case 1: { int v = readInt("Value to push: "); sll.push(v); break; }
-            case 2: { int v = sll.pop();
-                      if (v != -1) cout << GRN << "  Popped: " << v << "\n" RST;
-                      pause(); break; }
-            case 3: { int v = sll.peek();
-                      if (v != -1) cout << YLW << "  Top: " << v << "\n" RST;
-                      pause(); break; }
-            case 0: break;
+            case 1: {
+                int v = readInt("Value to push: ");
+                capture([&]{ sll.push(v); });
+                break;
+            }
+            case 2: {
+                if (sll.isEmpty()) {
+                    setStatus("Stack is empty. Nothing to pop.", true);
+                    break;
+                }
+                capture([&]{ sll.pop(); });
+                break;
+            }
+            case 3: {
+                if (sll.isEmpty()) {
+                    setStatus("Stack is empty. Nothing to peek.", true);
+                    break;
+                }
+                capture([&]{ sll.peek(); });
+                break;
+            }
+            case 0: setStatus(""); break;
         }
     } while (choice != 0);
 }
 
+// ── 4. Circular Queue ────────────────────────────────────────────────────────
 void queueCircMenu() {
-    int cap = readInt("Enter circular queue capacity: ");
+    int cap;
+    while (true) {
+        cap = readInt("Enter circular queue capacity (must be > 0): ");
+        if (cap > 0) break;
+        cout << RED << "  Invalid capacity! Please enter a number greater than 0.\n" RST;
+    }
     CircularQueue cq(cap);
     int choice;
+    setStatus("");
     do {
         printBanner();
         printDivider("CIRCULAR QUEUE (Array-based)");
         cout << "  Capacity: " << cap
-             << "  |  Empty: " << (cq.isEmpty() ? "yes" : "no")
-             << "  |  Full: "  << (cq.isFull()  ? "yes" : "no") << "\n\n"
-             << GRN  << "  [1]" RST << "  Enqueue\n"
-             << RED  << "  [2]" RST << "  Dequeue\n"
-             << DIM  << "  [0]" RST << "  Back\n\n";
+             << "  |  State: "
+             << (cq.isEmpty() ? (string)(RED) + "EMPTY" + RST
+                              : cq.isFull() ? (string)(YLW) + "FULL"  + RST
+                                            : (string)(GRN) + "OK"    + RST)
+             << "\n";
+        cq.display();
+        cout << "\n"
+             << GRN << "  [1]" RST << "  Enqueue\n"
+             << RED << "  [2]" RST << "  Dequeue\n"
+             << DIM << "  [0]" RST << "  Back\n";
+        printStatus();
+        cout << "\n";
         choice = readChoice(0, 2);
+
         switch (choice) {
-            case 1: { int v = readInt("Value to enqueue: "); cq.enqueue(v); pause(); break; }
-            case 2: { int v = cq.dequeue();
-                      if (v != -1) cout << GRN << "  Dequeued: " << v << "\n" RST;
-                      pause(); break; }
-            case 0: break;
+            case 1: {
+                if (cq.isFull()) {
+                    setStatus("Queue is full (capacity = " + to_string(cap) + "). Cannot enqueue.", true);
+                    break;
+                }
+                int v = readInt("Value to enqueue: ");
+                capture([&]{ cq.enqueue(v); });
+                break;
+            }
+            case 2: {
+                if (cq.isEmpty()) {
+                    setStatus("Queue is empty. Nothing to dequeue.", true);
+                    break;
+                }
+                capture([&]{ cq.dequeue(); });
+                break;
+            }
+            case 0: setStatus(""); break;
         }
     } while (choice != 0);
 }
 
+// ── 5. Queue (Linked List) ───────────────────────────────────────────────────
 void queueLLMenu() {
     QueueLinkedList qll;
     int choice;
+    setStatus("");
     do {
         printBanner();
         printDivider("QUEUE (Linked List)");
-        cout << "  Empty: " << (qll.isEmpty() ? "yes" : "no") << "\n\n"
-             << GRN  << "  [1]" RST << "  Enqueue\n"
-             << RED  << "  [2]" RST << "  Dequeue\n"
-             << DIM  << "  [0]" RST << "  Back\n\n";
+        cout << "  State: "
+             << (qll.isEmpty() ? (string)(RED) + "EMPTY" + RST
+                               : (string)(GRN) + "HAS ELEMENTS" + RST)
+             << "\n";
+        qll.display();
+        cout << "\n"
+             << GRN << "  [1]" RST << "  Enqueue\n"
+             << RED << "  [2]" RST << "  Dequeue\n"
+             << DIM << "  [0]" RST << "  Back\n";
+        printStatus();
+        cout << "\n";
         choice = readChoice(0, 2);
+
         switch (choice) {
-            case 1: { int v = readInt("Value to enqueue: "); qll.enqueue(v); break; }
-            case 2: { int v = qll.dequeue();
-                      if (v != -1) cout << GRN << "  Dequeued: " << v << "\n" RST;
-                      pause(); break; }
-            case 0: break;
+            case 1: {
+                int v = readInt("Value to enqueue: ");
+                capture([&]{ qll.enqueue(v); });
+                break;
+            }
+            case 2: {
+                if (qll.isEmpty()) {
+                    setStatus("Queue is empty. Nothing to dequeue.", true);
+                    break;
+                }
+                capture([&]{ qll.dequeue(); });
+                break;
+            }
+            case 0: setStatus(""); break;
         }
     } while (choice != 0);
 }
@@ -233,9 +403,11 @@ void queueLLMenu() {
 int main() {
     enableVT();
     int choice;
+    setStatus("");
     do {
         printMainMenu();
         choice = readChoice(0, 5);
+        setStatus("");
         switch (choice) {
             case 1: llMenu();        break;
             case 2: stackArrMenu();  break;
@@ -244,8 +416,7 @@ int main() {
             case 5: queueLLMenu();   break;
             case 0:
                 clearScreen();
-                cout << CYN << BOLD
-                     << "\n  Goodbye! Happy coding!\n\n" << RST;
+                cout << CYN << BOLD << "\n  Goodbye! Happy coding!\n\n" << RST;
                 break;
         }
     } while (choice != 0);

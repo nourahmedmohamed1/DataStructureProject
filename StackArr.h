@@ -18,6 +18,7 @@ public:
     int  peek();
     bool isFull();
     bool isEmpty();
+    void display();
 };
 
 #endif // STACKARR_H

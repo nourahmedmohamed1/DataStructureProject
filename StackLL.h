@@ -16,6 +16,7 @@ public:
     int  pop();
     int  peek();
     bool isEmpty();
+    void display();
 };
 
 #endif // STACKLL_H

@@ -2,49 +2,58 @@
 #include <iostream>
 using namespace std;
 
-// Constructor: start with an empty stack
 StackLinkedList::StackLinkedList() {
     top = nullptr;
 }
 
-// Destructor: pop every node to free all heap memory
 StackLinkedList::~StackLinkedList() {
-    while (!isEmpty()) {
-        pop();
-    }
+    while (!isEmpty()) pop();
 }
 
-// push: create a new node and place it at the top
 void StackLinkedList::push(int value) {
-    Node* newNode = new Node();
-    newNode->data = value;
-    newNode->next = top;
-    top = newNode;
+    Node* newNode  = new Node();
+    newNode->data  = value;
+    newNode->next  = top;
+    top            = newNode;
+    cout << "Pushed " << value << " onto the stack.\n";
 }
 
-// pop: remove the top node and return its value
 int StackLinkedList::pop() {
     if (isEmpty()) {
-        cout << "Error: Can't pop from an empty stack.\n";
+        cout << "Stack Underflow! Cannot pop. Stack is empty.\n";
         return -1;
     }
     Node* temp = top;
-    int value  = top->data;
+    int   val  = top->data;
     top        = top->next;
     delete temp;
-    return value;
+    cout << "Popped " << val << " from the stack.\n";
+    return val;
 }
 
-// peek: return the top value WITHOUT removing it
 int StackLinkedList::peek() {
     if (isEmpty()) {
-        cout << "Error: Can't peek an empty stack.\n";
+        cout << "Stack is empty. Nothing to peek.\n";
         return -1;
     }
+    cout << "Top of stack: " << top->data << "\n";
     return top->data;
 }
 
-// isEmpty: returns true if there are no nodes
 bool StackLinkedList::isEmpty() {
     return top == nullptr;
+}
+
+void StackLinkedList::display() {
+    if (isEmpty()) {
+        cout << "  Stack is empty.\n";
+        return;
+    }
+    cout << "  TOP";
+    Node* cur = top;
+    while (cur != nullptr) {
+        cout << " -> [" << cur->data << "]";
+        cur = cur->next;
+    }
+    cout << " -> nullptr\n";
 }

@@ -19,6 +19,7 @@ public:
 
     void enqueue(int element);
     int  dequeue();
+    void display();
 };
 
 #endif // QUEUECIRC_H

@@ -19,6 +19,7 @@ public:
     int  dequeue();
     bool isEmpty();
     bool isFull();   // always false (unbounded)
+    void display();
 };
 
 #endif // QUEUELL_H
