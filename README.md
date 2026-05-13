@@ -1,6 +1,6 @@
 # 🗂️ Data Structures Interactive Explorer
 
-> A C++ project demonstrating **5 classic data structures** through an interactive, colour-coded console application.
+> A C++ project demonstrating **5 classic data structures** through an interactive, colour-coded console.
 
 ![Banner](https://img.shields.io/badge/Language-C%2B%2B17-blue?style=for-the-badge&logo=c%2B%2B)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
